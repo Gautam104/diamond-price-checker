@@ -133,15 +133,13 @@ if uploaded_file is not None:
                 current_index = clarity_df.index[i]
                 next_index = clarity_df.index[i + 1]
 
-                current_price = df.loc[
-                    current_index,
-                    "UPDATED PRICE"
-                ]
+                current_price = float(
+                    df.loc[current_index, "UPDATED PRICE"]
+                )
 
-                next_price = df.loc[
-                    next_index,
-                    "UPDATED PRICE"
-                ]
+                next_price = float(
+                    df.loc[next_index, "UPDATED PRICE"]
+                )
 
                 current_color = df.loc[
                     current_index,
@@ -153,9 +151,12 @@ if uploaded_file is not None:
                     "Color"
                 ]
 
-                # Higher color must have higher price
+                # ======================================
+                # ONLY ERROR IF NEXT PRICE IS HIGHER
+                # SAME PRICE IS ALLOWED
+                # ======================================
 
-                if current_price < next_price:
+                if next_price > current_price:
 
                     df.loc[
                         next_index,
@@ -199,15 +200,13 @@ if uploaded_file is not None:
                 current_index = color_df.index[i]
                 next_index = color_df.index[i + 1]
 
-                current_price = df.loc[
-                    current_index,
-                    "UPDATED PRICE"
-                ]
+                current_price = float(
+                    df.loc[current_index, "UPDATED PRICE"]
+                )
 
-                next_price = df.loc[
-                    next_index,
-                    "UPDATED PRICE"
-                ]
+                next_price = float(
+                    df.loc[next_index, "UPDATED PRICE"]
+                )
 
                 current_clarity = df.loc[
                     current_index,
@@ -219,9 +218,12 @@ if uploaded_file is not None:
                     "Clarity"
                 ]
 
-                # Higher clarity must have higher price
+                # ======================================
+                # ONLY ERROR IF NEXT PRICE IS HIGHER
+                # SAME PRICE IS ALLOWED
+                # ======================================
 
-                if current_price < next_price:
+                if next_price > current_price:
 
                     df.loc[
                         next_index,
