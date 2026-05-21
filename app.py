@@ -20,7 +20,7 @@ uploaded_file = st.file_uploader(
 )
 
 # =========================
-# START PROCESS AFTER UPLOAD
+# START PROCESS
 # =========================
 
 if uploaded_file is not None:
@@ -34,6 +34,12 @@ if uploaded_file is not None:
     st.success("File Uploaded Successfully")
 
     OUTPUT_FILE = "diamond_price_validation_output.xlsx"
+
+    # =========================
+    # CLEAN COLUMNS
+    # =========================
+
+    df.columns = df.columns.str.strip()
 
     # =========================
     # CLARITY ORDER
@@ -60,20 +66,7 @@ if uploaded_file is not None:
     COLOR_ORDER = list("DEFGHIJKLMNOPQRSTUVWXYZ")
 
     # =========================
-    # CLEAN COLUMNS
-    # =========================
-
-    df.columns = df.columns.str.strip()
-
-    # =========================
-    # ADD ERROR COLUMNS
-    # =========================
-
-    df["Error Type"] = ""
-    df["Error Message"] = ""
-
-    # =========================
-    # CLARITY & COLOR RANK
+    # RANK MAPS
     # =========================
 
     clarity_rank = {
@@ -85,29 +78,45 @@ if uploaded_file is not None:
     }
 
     # =========================
-    # ERROR COUNTERS
+    # ADD ERROR COLUMNS
+    # =========================
+
+    df["Error Type"] = ""
+    df["Error Message"] = ""
+
+    # =========================
+    # ERROR COUNTS
     # =========================
 
     clarity_error_count = 0
     color_error_count = 0
 
     # =========================
-    # MAIN VALIDATION
+    # MAIN GROUPING
     # =========================
 
-    group_columns = ["Shape", "Size Grp"]
+    main_groups = df.groupby([
+        "Shape",
+        "Size Grp"
+    ])
 
-    grouped = df.groupby(group_columns)
+    # ==================================================
+    # START VALIDATION
+    # ==================================================
 
-    for group_name, group_df in grouped:
+    for group_name, group_df in main_groups:
 
-        # =====================
+        # ==============================================
         # COLOR CHECK
-        # =====================
+        # SAME:
+        # Shape + Size Grp + Clarity
+        # ==============================================
 
-        clarity_groups = group_df.groupby("Clarity")
+        color_check_groups = group_df.groupby(
+            ["Clarity"]
+        )
 
-        for clarity, clarity_df in clarity_groups:
+        for clarity_name, clarity_df in color_check_groups:
 
             clarity_df = clarity_df.copy()
 
@@ -119,43 +128,61 @@ if uploaded_file is not None:
                 "ColorRank"
             )
 
-            rows = clarity_df.to_dict("records")
+            for i in range(len(clarity_df) - 1):
 
-            for i in range(len(rows) - 1):
+                current_index = clarity_df.index[i]
+                next_index = clarity_df.index[i + 1]
 
-                current_row = rows[i]
-                next_row = rows[i + 1]
+                current_price = df.loc[
+                    current_index,
+                    "UPDATED PRICE"
+                ]
 
-                current_price = current_row["UPDATED PRICE"]
-                next_price = next_row["UPDATED PRICE"]
+                next_price = df.loc[
+                    next_index,
+                    "UPDATED PRICE"
+                ]
 
-                current_color = current_row["Color"]
-                next_color = next_row["Color"]
+                current_color = df.loc[
+                    current_index,
+                    "Color"
+                ]
+
+                next_color = df.loc[
+                    next_index,
+                    "Color"
+                ]
 
                 # Higher color must have higher price
 
                 if current_price < next_price:
 
-                    idx = clarity_df.index[i + 1]
+                    df.loc[
+                        next_index,
+                        "Error Type"
+                    ] += "Color Error | "
 
-                    df.loc[idx, "Error Type"] += (
-                        "Color Error | "
-                    )
-
-                    df.loc[idx, "Error Message"] += (
-                        f"{next_color} color price higher than "
-                        f"{current_color}. "
+                    df.loc[
+                        next_index,
+                        "Error Message"
+                    ] += (
+                        f"{next_color} color price "
+                        f"higher than {current_color}. "
                     )
 
                     color_error_count += 1
 
-        # =====================
+        # ==============================================
         # CLARITY CHECK
-        # =====================
+        # SAME:
+        # Shape + Size Grp + Color
+        # ==============================================
 
-        color_groups = group_df.groupby("Color")
+        clarity_check_groups = group_df.groupby(
+            ["Color"]
+        )
 
-        for color, color_df in color_groups:
+        for color_name, color_df in clarity_check_groups:
 
             color_df = color_df.copy()
 
@@ -167,32 +194,46 @@ if uploaded_file is not None:
                 "ClarityRank"
             )
 
-            rows = color_df.to_dict("records")
+            for i in range(len(color_df) - 1):
 
-            for i in range(len(rows) - 1):
+                current_index = color_df.index[i]
+                next_index = color_df.index[i + 1]
 
-                current_row = rows[i]
-                next_row = rows[i + 1]
+                current_price = df.loc[
+                    current_index,
+                    "UPDATED PRICE"
+                ]
 
-                current_price = current_row["UPDATED PRICE"]
-                next_price = next_row["UPDATED PRICE"]
+                next_price = df.loc[
+                    next_index,
+                    "UPDATED PRICE"
+                ]
 
-                current_clarity = current_row["Clarity"]
-                next_clarity = next_row["Clarity"]
+                current_clarity = df.loc[
+                    current_index,
+                    "Clarity"
+                ]
+
+                next_clarity = df.loc[
+                    next_index,
+                    "Clarity"
+                ]
 
                 # Higher clarity must have higher price
 
                 if current_price < next_price:
 
-                    idx = color_df.index[i + 1]
+                    df.loc[
+                        next_index,
+                        "Error Type"
+                    ] += "Clarity Error | "
 
-                    df.loc[idx, "Error Type"] += (
-                        "Clarity Error | "
-                    )
-
-                    df.loc[idx, "Error Message"] += (
-                        f"{next_clarity} price higher than "
-                        f"{current_clarity}. "
+                    df.loc[
+                        next_index,
+                        "Error Message"
+                    ] += (
+                        f"{next_clarity} price higher "
+                        f"than {current_clarity}. "
                     )
 
                     clarity_error_count += 1
