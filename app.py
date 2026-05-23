@@ -100,7 +100,8 @@ if uploaded_file is not None:
     color_groups = df.groupby([
         "Shape",
         "Size Grp",
-        "Clarity"
+        "Clarity",
+        "Quality"
     ])
 
     for group_name, group_df in color_groups:
@@ -189,7 +190,8 @@ if uploaded_file is not None:
     clarity_groups = df.groupby([
         "Shape",
         "Size Grp",
-        "Color"
+        "Color",
+        "Quality"
     ])
 
     for group_name, group_df in clarity_groups:
