@@ -4,7 +4,6 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.chart import BarChart, Reference
 import streamlit as st
 
-
 # =========================
 # STREAMLIT TITLE
 # =========================
@@ -357,12 +356,6 @@ if uploaded_file is not None:
         fill_type="solid"
     )
 
-    blue_fill = PatternFill(
-         start_color="0000FF",
-         end_color="0000FF",
-         fill_type="solid"
-    )
-
     white_font = Font(
         color="FFFFFF",
         bold=True
@@ -406,67 +399,6 @@ if uploaded_file is not None:
                 cell.fill = red_fill
                 cell.font = white_font
 
-    # =========================
-# BLUE HIGHLIGHT
-# DIFFERENCE < 0
-# AND NO OF DAYS <= 80
-# =========================
-
-    headers = [cell.value for cell in ws[1]]
-
-    if (
-        "DIFFERENCE" in headers
-        and
-        "No of Days" in headers
-    ):
-        diff_col = headers.index("DIFFERENCE") + 1
-        days_col = headers.index("No of Days") + 1
-
-        for row in range(2, ws.max_row + 1):
-
-            try:
-
-                diff_value = float(
-                    ws.cell(
-                        row=row,
-                        column=diff_col
-                    ).value
-                )
-                days_value = float(
-                    ws.cell(
-                        row=row,
-                        column=days_col
-                    ).value
-                )
-                if (
-                    diff_value < 0
-                    and
-                    days_value <= 80
-                    and
-                    not ws.cell(row=row, column=error_col).value
-                ):
-                     for col in range(
-                         1,
-                         ws.max_column + 1
-                     ):
-                         cell = ws.cell(
-                             row=row,
-                             column=col
-                         )
-                         cell.fill = blue_fill
-                         cell.font = white_font
-                         
-            except:
-                pass
-                        
-               
-                   
-
-    
-
-     
-
-    
     # =========================
     # DASHBOARD CHART
     # =========================
@@ -531,243 +463,16 @@ if uploaded_file is not None:
     wb.save(OUTPUT_FILE)
 
     # =========================
-    # KPI DASHBOARD
-    # =========================
-
-
-    error_diamonds = len(
-        df[
-        df["Error Type"].str.strip() != ""
-        ]
-     )
-
-    minus_count = 0
-
-    if (
-        "DIFFERENCE" in df.columns
-        and
-        "No of Days" in df.columns
-    ):
-        minus_count = len(
-            df[
-              (pd.to_numeric(df["DIFFERENCE"], errors="coerce") < 0)
-               &
-               (pd.to_numeric(df["No of Days"], errors="coerce") <= 80)
-               &
-               (df["Error Type"].str.strip() == "")
-              ]
-        )
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    col1.metric(
-        "Total Diamonds",
-        len(df)
-    )
-
-    col2.metric(
-        "Error Diamonds",
-        error_diamonds
-    )
-
-    col3.metric(
-        "Clarity Errors",
-        clarity_error_count
-    )
-
-    col4.metric(
-        "Color Errors",
-         color_error_count
-    )
-
-    col5.metric(
-        "Negative Diff <=80 Days",
-        minus_count
-    )
-
-    # =========================
-    # ERROR CHART
-    # =========================
-
-    chart_df = pd.DataFrame({
-        "Type": [
-            "Clarity Errors",
-            "Color Errors"
-        ],
-        "Count": [
-            clarity_error_count,
-            color_error_count
-        ]
-    })
-
-    st.subheader("Error Summary")
-
-    st.bar_chart(
-        chart_df.set_index("Type")
-    )
-
-    negative_df = pd.DataFrame()
-
-    if (
-        "DIFFERENCE" in df.columns
-        and
-        "No of Days" in df.columns
-    ):
-        negative_df = df[
-            (pd.to_numeric(df["DIFFERENCE"], errors="coerce") < 0)
-            &
-            (pd.to_numeric(df["No of Days"], errors="coerce") <= 80)
-        ]
-
-    if not negative_df.empty:
-        st.subheader(
-            "Negative Difference <= 80 Days"
-        )
-        st.dataframe(negative_df)
-
-
-    # =========================
-    # FILTERS
-    # =========================
-
-    st.subheader("Filters")
-    
-    selected_quality = st.multiselect(
-        "Quality",
-        sorted(df["Quality"].dropna().unique())
-    )
-
-    selected_shape = st.multiselect(
-        "Shape",
-        sorted(df["Shape"].dropna().unique())
-    )
-
-    selected_color = st.multiselect(
-        "Color",
-        sorted(df["Color"].dropna().unique())
-    )
-
-    selected_clarity = st.multiselect(
-        "Clarity",
-        sorted(df["Clarity"].dropna().unique())
-    )
-
-    selected_size = st.multiselect(
-        "Size Grp",
-        sorted(df["Size Grp"].dropna().unique())
-    )
-
-    selected_status = []
-    if "Status" in df.columns:
-        selected_status = st.multiselect(
-            "Status",
-             sorted(df["Status"].dropna().unique())
-       )
-
-    selected_lab = []
-    if "Lab" in df.columns:
-        selected_lab = st.multiselect(
-            "Lab",
-             sorted(df["Lab"].dropna().unique())
-        )   
-
-
-
-    
-
-    filtered_df = df.copy()
-
-    if selected_quality:
-        filtered_df = filtered_df[
-            filtered_df["Quality"].isin(selected_quality)
-        ]
-
-    if selected_shape:
-        filtered_df = filtered_df[
-            filtered_df["Shape"].isin(selected_shape)
-        ]
-
-    if selected_color:
-        filtered_df = filtered_df[
-            filtered_df["Color"].isin(selected_color)
-        ]   
-
-    if selected_clarity:
-        filtered_df = filtered_df[
-            filtered_df["Clarity"].isin(selected_clarity)
-        ]
-
-    if selected_size:
-       filtered_df = filtered_df[
-           filtered_df["Size Grp"].isin(selected_size)
-       ]
-
-    if selected_status:
-       filtered_df = filtered_df[
-           filtered_df["Status"].isin(selected_status)
-       ]
-
-    if selected_lab:
-       filtered_df = filtered_df[
-           filtered_df["Lab"].isin(selected_lab)
-       ]
-
-
-    st.write("Filtered Rows:", len(filtered_df))
-    st.dataframe(filtered_df)
-
-    # =========================
-    # SELECT COLUMNS
-    # =========================
-
-    selected_columns = st.multiselect(
-        "Columns To Download",
-        filtered_df.columns.tolist(),
-        default=filtered_df.columns.tolist()
-    )
-
-    if not selected_columns:
-        st.warning("Please select at least one column")
-        st.stop()
-
-    download_df = filtered_df[selected_columns]
-
-    st.dataframe(download_df)
-
-
-  
-
-        
-        
-
-    
-
-    
-
-    # =========================
     # DOWNLOAD BUTTON
     # =========================
 
-    import io
+    with open(OUTPUT_FILE, "rb") as file:
 
-    buffer = io.BytesIO()
-
-    with pd.ExcelWriter(
-        buffer,
-        engine="openpyxl"
-    ) as writer:
-
-        download_df.to_excel(
-            writer,
-            index=False
+        st.download_button(
+            label="Download Checked Excel File",
+            data=file,
+            file_name=OUTPUT_FILE,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-    st.download_button(
-        label="Download Filtered Excel",
-        data=buffer.getvalue(),
-        file_name="filtered_diamonds.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-        
 
     st.success("Validation Completed Successfully")
