@@ -459,6 +459,21 @@ if uploaded_file is not None:
     )
 
     # =========================
+    # RECENT LOSS STYLE
+    # =========================
+
+    light_blue_fill = PatternFill(
+        start_color="ADD8E6",
+        end_color="ADD8E6",
+        fill_type="solid"
+    )
+
+    black_font = Font(
+        color="000000",
+        bold=True
+    )
+
+    # =========================
     # FIND ERROR COLUMN
     # =========================
 
@@ -481,6 +496,9 @@ if uploaded_file is not None:
             column=error_col
         ).value
 
+        # DataFrame index
+        df_index = row - 2
+
         if (
             error_value and
             str(error_value).strip() != ""
@@ -495,6 +513,20 @@ if uploaded_file is not None:
 
                 cell.fill = red_fill
                 cell.font = white_font
+        elif (
+            df.loc[df_index, "DIFFERENCE"] < 0 and
+            df.loc[df_index, "No of Days"] < 90
+        ):
+
+            for col in range(1, ws.max_column + 1):
+                cell = ws.cell(
+                    row=row,
+                    column=col
+                )
+                cell.fill = light_blue_fill
+                cell.font = black_font
+
+    
 
     # =========================
     # DASHBOARD CHART
