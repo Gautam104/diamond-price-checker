@@ -33,6 +33,41 @@ if uploaded_file is not None:
 
     st.success("File Uploaded Successfully")
 
+    # =========================
+    # NEGATIVE DIFFERENCE KPI
+    # =========================
+
+    if "Difference" in df.columns:
+
+        # Convert Difference column to numeric
+        df["Difference"] = pd.to_numeric(
+            df["Difference"],
+            errors="coerce"
+        )
+        # Count negative diamonds
+        negative_count = (
+            df["Difference"] < 0
+        ).sum()
+        # Total diamonds
+        total_diamonds = len(df)
+        # KPI Cards
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(
+                label="🔻 Negative Diamonds",
+                value=f"{negative_count:,}"
+            )
+        with col2:
+             st.metric(
+                 label="💎 Total Diamonds",
+                 value=f"{total_diamonds:,}"
+             )
+
+    
+        
+    
+
+
     OUTPUT_FILE = "diamond_price_validation_output.xlsx"
 
     # =========================
