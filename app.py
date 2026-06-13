@@ -473,6 +473,12 @@ if uploaded_file is not None:
         bold=True
     )
 
+    gray_fill = PatternFill(
+        start_color="D9D9D9",
+        end_color="D9D9D9",
+        fill_type="solid"
+    )
+
     # =========================
     # FIND ERROR COLUMN
     # =========================
@@ -514,6 +520,8 @@ if uploaded_file is not None:
                 cell.fill = red_fill
                 cell.font = white_font
         elif (
+            pd.notna(df.loc[df_index, "DIFFERENCE"]) and
+            pd.notna(df.loc[df_index, "No of Days"]) and
             df.loc[df_index, "DIFFERENCE"] < 0 and
             df.loc[df_index, "No of Days"] < 90
         ):
@@ -525,6 +533,19 @@ if uploaded_file is not None:
                 )
                 cell.fill = light_blue_fill
                 cell.font = black_font
+
+        elif (
+             pd.notna(df.loc[df_index, "UPDATED PRICE"]) and
+             pd.notna(df.loc[df_index, "Cost / Cts."]) and
+             pd.notna(df.loc[df_index, "No of Days"]) and
+             df.loc[df_index, "UPDATED PRICE"] <
+             df.loc[df_index, "Cost / Cts."] and
+             df.loc[df_index, "No of Days"] <= 90
+         ):
+             for col in range(1, ws.max_column + 1):
+                 cell = ws.cell(row=row, column=col)
+                 cell.fill = gray_fill
+                 cell.font = black_font
 
     
 
