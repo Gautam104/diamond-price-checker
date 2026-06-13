@@ -42,16 +42,16 @@ if uploaded_file is not None:
     # NEGATIVE DIFFERENCE KPI
     # =========================
 
-    if "Difference" in df.columns:
+    if "DIFFERENCE" in df.columns:
 
         # Convert Difference column to numeric
-        df["Difference"] = pd.to_numeric(
-            df["Difference"],
+        df["DIFFERENCE"] = pd.to_numeric(
+            df["DIFFERENCE"],
             errors="coerce"
         )
         # Count negative diamonds
         negative_count = (
-            df["Difference"] < 0
+            df["DIFFERENCE"] < 0
         ).sum()
         # Total diamonds
         total_diamonds = len(df)
