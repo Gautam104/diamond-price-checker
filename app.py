@@ -55,18 +55,52 @@ if uploaded_file is not None:
         ).sum()
         # Total diamonds
         total_diamonds = len(df)
+        # =========================
+        # ADDITIONAL KPIs
+        # =========================
+        negative_90 = (
+            (df["No of Days"] < 90) &
+            (df["DIFFERENCE"] < 0)
+        ).sum()
+
+        negative_percent = (
+            negative_count / total_diamonds * 100
+        ) if total_diamonds > 0 else 0
+
+        correct_diamonds = (
+            total_diamonds - negative_count
+        )
+
+       
+            
         # KPI Cards
-        col1, col2 = st.columns(2)
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             st.metric(
-                label="🔻 Negative Diamonds",
-                value=f"{negative_count:,}"
+                 "🔻 Negative",
+                f"{negative_count:,}"
             )
         with col2:
              st.metric(
-                 label="💎 Total Diamonds",
-                 value=f"{total_diamonds:,}"
+                 "💎 Total",
+                 f"{total_diamonds:,}"
              )
+        with col3:
+             st.metric(
+                 "⏰ <90 Days",
+                 f"{negative_90:,}"
+             )
+        with col4:
+             st.metric(
+                 "📉 Negative %",
+                 f"{negative_percent:.2f}%"
+             )
+        with col5:
+              st.metric(
+                  "✅ Correct",
+                  f"{correct_diamonds:,}"
+              )
+              
 
     else:
          st.warning(
