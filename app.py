@@ -10,6 +10,28 @@ import streamlit as st
 
 st.title("Diamond Price Validation Tool")
 
+st.markdown("""
+<style>
+div[data-testid="metric-container"] {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+div[data-testid="metric-container"] label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+div[data-testid="metric-container"] div {
+    font-size: 30px;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # =========================
 # FILE UPLOAD
 # =========================
