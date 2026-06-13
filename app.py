@@ -87,7 +87,7 @@ if uploaded_file is not None:
              )
         with col3:
              st.metric(
-                 "⏰ <90 Days",
+                 "🔻 Negative (<90 Days)",
                  f"{negative_90:,}"
              )
         with col4:
