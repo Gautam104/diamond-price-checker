@@ -30,6 +30,11 @@ if uploaded_file is not None:
     # =========================
 
     df = pd.read_excel(uploaded_file)
+    # =========================
+    # CLEAN COLUMNS
+    # =========================
+
+    df.columns = df.columns.str.strip()
 
     st.success("File Uploaded Successfully")
 
@@ -63,6 +68,11 @@ if uploaded_file is not None:
                  value=f"{total_diamonds:,}"
              )
 
+    else:
+         st.warning(
+              f"'Difference' column not found."
+         )
+
     
         
     
@@ -70,11 +80,7 @@ if uploaded_file is not None:
 
     OUTPUT_FILE = "diamond_price_validation_output.xlsx"
 
-    # =========================
-    # CLEAN COLUMNS
-    # =========================
 
-    df.columns = df.columns.str.strip()
 
     # =========================
     # CLARITY ORDER
